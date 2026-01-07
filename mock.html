@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice AI Mock Interview</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Lucide icons as SVG components
+    const Briefcase = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>;
+    const Play = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>;
+    const Mic = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>;
+    const MicOff = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>;
+    const ArrowRight = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>;
+    const Volume2 = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>;
+    const VolumeX = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>;
+    const Sparkles = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>;
+    const Loader2 = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>;
+    const User2 = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 1 0-16 0"></path></svg>;
+    const Plus = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+    const Award = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>;
+    const CheckCircle = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
+    const XCircle = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>;
+
+    const jobCategories = [
+      { id: 1, name: 'Software Engineering', icon: '💻', roles: ['Frontend Developer', 'Backend Developer', 'Full Stack', 'DevOps Engineer'] },
+      { id: 2, name: 'Product & Design', icon: '🎨', roles: ['Product Manager', 'UX Designer', 'UI Designer'] },
+      { id: 3, name: 'Data & Analytics', icon: '📊', roles: ['Data Analyst', 'Data Scientist', 'ML Engineer'] },
+      { id: 4, name: 'Business', icon: '💼', roles: ['Sales Rep', 'Business Analyst', 'Consultant'] },
+    ];
+
+    const questions = {
+      'Frontend Developer': [
+        "Hello! I'm your AI interviewer today. Let's begin with an easy one. Tell me about yourself and your experience with frontend development.",
+        "Great! Now, can you explain the difference between CSS Grid and Flexbox? When would you choose one over the other?",
+        "Interesting. Describe a challenging bug you encountered in a React application. How did you debug and solve it?",
+        "Good answer. How do you approach performance optimization in frontend applications?",
+        "Final question. Where do you see yourself in 5 years, and how does this role fit into your career goals?"
+      ],
+      'Product Manager': [
+        "Welcome! I'm excited to learn about you. Please walk me through your product management experience.",
+        "Thanks for sharing. How do you prioritize features when you have limited resources and multiple stakeholders?",
+        "Tell me about a product you launched from ideation to release. What was your role and what challenges did you face?",
+        "Interesting background. How would you handle a situation where engineering says a feature will take 3 months but stakeholders want it in 1 month?",
+        "Last question. What metrics do you use to measure product success, and why?"
+      ],
+      'default': [
+        "Hello and welcome! I'm your AI interviewer. Let's start by having you tell me about yourself.",
+        "Thank you. What would you say are your greatest strengths, and how do they apply to this role?",
+        "Can you describe a challenging situation you faced at work and how you handled it?",
+        "Good example. Tell me about a time you had to work with a difficult team member or stakeholder.",
+        "Final question. Why are you interested in this position, and what excites you most about it?"
+      ]
+    };
+
+    function VoiceAIInterview() {
+      const [view, setView] = useState('setup');
+      const [selectedCategory, setSelectedCategory] = useState(null);
+      const [selectedRole, setSelectedRole] = useState('');
+      const [currentQ, setCurrentQ] = useState(0);
+      const [answers, setAnswers] = useState([]);
+      const [currentAnswer, setCurrentAnswer] = useState('');
+      const [isRecording, setIsRecording] = useState(false);
+      const [isSpeaking, setIsSpeaking] = useState(false);
+      const [aiStatus, setAiStatus] = useState('idle');
+      const [transcript, setTranscript] = useState('');
+      const [micError, setMicError] = useState('');
+      const recognitionRef = useRef(null);
+
+      const roleQuestions = questions[selectedRole] || questions['default'];
+
+      const speakQuestion = (text) => {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 0.95;
+          utterance.pitch = 1;
+          utterance.volume = 1;
+          const voices = window.speechSynthesis.getVoices();
+          const preferredVoice = voices.find(v => v.name.includes('Google') || v.name.includes('Samantha') || v.lang === 'en-US');
+          if (preferredVoice) utterance.voice = preferredVoice;
+          utterance.onstart = () => setIsSpeaking(true);
+          utterance.onend = () => { setIsSpeaking(false); setAiStatus('listening'); };
+          setAiStatus('speaking');
+          window.speechSynthesis.speak(utterance);
+        }
+      };
+
+      const toggleRecording = async () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+          setMicError('Speech recognition not supported. Please use Chrome browser.');
+          return;
+        }
+
+        if (isRecording) {
+          if (recognitionRef.current) {
+            recognitionRef.current.stop();
+          }
+          setIsRecording(false);
+          setTranscript('');
+          setMicError('');
+          return;
+        }
+
+        try {
+          setMicError('');
+          const recognition = new SpeechRecognition();
+          
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = 'en-US';
+          recognition.maxAlternatives = 1;
+          
+          recognition.onstart = () => {
+            console.log('Speech recognition started');
+            setIsRecording(true);
+            setMicError('');
+          };
+          
+          recognition.onresult = (event) => {
+            let interimText = '';
+            let finalText = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              const text = event.results[i][0].transcript;
+              if (event.results[i].isFinal) {
+                finalText += text + ' ';
+              } else {
+                interimText += text;
+              }
+            }
+            
+            if (finalText) {
+              setCurrentAnswer(prev => prev + finalText);
+            }
+            setTranscript(interimText);
+          };
+          
+          recognition.onerror = (event) => {
+            console.error('Speech error:', event.error);
+            setIsRecording(false);
+            setTranscript('');
+            
+            switch(event.error) {
+              case 'not-allowed':
+              case 'permission-denied':
+                setMicError('🎤 Microphone access denied. Please allow microphone access in your browser settings.');
+                break;
+              case 'no-speech':
+                setMicError('No speech detected. Please try again.');
+                break;
+              case 'audio-capture':
+                setMicError('No microphone found. Please connect a microphone.');
+                break;
+              case 'network':
+                setMicError('Network error. Please check your connection.');
+                break;
+              default:
+                setMicError(`Error: ${event.error}. Please try again.`);
+            }
+          };
+          
+          recognition.onend = () => {
+            console.log('Speech recognition ended');
+            setIsRecording(false);
+            setTranscript('');
+          };
+          
+          recognitionRef.current = recognition;
+          recognition.start();
+          console.log('Starting speech recognition...');
+          
+        } catch (error) {
+          console.error('Failed to initialize:', error);
+          setMicError('Failed to start. Please refresh the page and try again.');
+          setIsRecording(false);
+        }
+      };
+
+      const startInterview = () => {
+        setCurrentQ(0);
+        setAnswers([]);
+        setCurrentAnswer('');
+        setView('interview');
+        setTimeout(() => speakQuestion(roleQuestions[0]), 500);
+      };
+
+      const submitAnswer = () => {
+        if (!currentAnswer.trim()) return;
+        if (isRecording) { recognitionRef.current?.stop(); setIsRecording(false); }
+        const newAnswers = [...answers, { q: roleQuestions[currentQ], a: currentAnswer }];
+        setAnswers(newAnswers);
+        setCurrentAnswer('');
+        setTranscript('');
+        if (currentQ < roleQuestions.length - 1) {
+          setCurrentQ(currentQ + 1);
+          setAiStatus('thinking');
+          setTimeout(() => speakQuestion(roleQuestions[currentQ + 1]), 1500);
+        } else {
+          setAiStatus('complete');
+          setView('feedback');
+        }
+      };
+
+      const replayQuestion = () => speakQuestion(roleQuestions[currentQ]);
+      const score = 7.8 + (answers.length * 0.25);
+
+      const AvatarStatus = () => (
+        <div className="relative">
+          <div className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 ${isSpeaking ? 'bg-gradient-to-br from-indigo-500 to-purple-600 scale-110' : aiStatus === 'thinking' ? 'bg-amber-500/80' : 'bg-slate-700'}`}>
+            {aiStatus === 'thinking' ? <Loader2 className="w-10 h-10 text-white animate-spin" /> : <User2 className="w-10 h-10 text-white" />}
+          </div>
+          {isSpeaking && (
+            <div className="absolute inset-0 rounded-full border-4 border-indigo-400 animate-ping opacity-30" />
+          )}
+          <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${isSpeaking ? 'bg-indigo-500' : aiStatus === 'listening' ? 'bg-emerald-500' : 'bg-slate-600'}`}>
+            {isSpeaking ? <Volume2 className="w-3 h-3 text-white" /> : <Mic className="w-3 h-3 text-white" />}
+          </div>
+        </div>
+      );
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <Sparkles />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">AI Voice Interview</h1>
+                <p className="text-slate-400 text-sm">Practice with voice-powered AI</p>
+              </div>
+            </div>
+
+            {view === 'setup' && (
+              <div className="space-y-6">
+                <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6 text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Mic />
+                  </div>
+                  <h2 className="text-xl font-bold text-white mb-2">Voice-Powered Interview</h2>
+                  <p className="text-slate-400 text-sm mb-4">The AI interviewer will speak questions aloud. You can respond by voice or typing.</p>
+                  <div className="flex items-center justify-center gap-2 text-emerald-400 text-sm">
+                    <Volume2 /> Audio enabled
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-white font-medium mb-3">Select Category</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {jobCategories.map(cat => (
+                      <button key={cat.id} onClick={() => { setSelectedCategory(cat); setSelectedRole(''); }} className={`p-4 rounded-xl border text-left transition ${selectedCategory?.id === cat.id ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'}`}>
+                        <span className="text-2xl">{cat.icon}</span>
+                        <p className="text-white font-medium mt-1">{cat.name}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedCategory && (
+                  <div>
+                    <h3 className="text-white font-medium mb-3">Select Role</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {selectedCategory.roles.map(role => (
+                        <button key={role} onClick={() => setSelectedRole(role)} className={`p-3 rounded-xl border transition ${selectedRole === role ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'}`}>
+                          <p className="text-white text-sm font-medium">{role}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedRole && (
+                  <button onClick={startInterview} className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-4 rounded-xl transition">
+                    <Play /> Start Voice Interview
+                  </button>
+                )}
+              </div>
+            )}
+
+            {view === 'interview' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all" style={{ width: `${((currentQ + 1) / roleQuestions.length) * 100}%` }} />
+                  </div>
+                  <span className="text-slate-400 text-sm">{currentQ + 1}/{roleQuestions.length}</span>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
+                  <div className="flex flex-col items-center text-center mb-6">
+                    <AvatarStatus />
+                    <p className="text-indigo-400 text-sm font-medium mt-4">
+                      {isSpeaking ? '🔊 Speaking...' : aiStatus === 'thinking' ? '🤔 Thinking...' : aiStatus === 'listening' ? '👂 Listening...' : 'AI Interviewer'}
+                    </p>
+                  </div>
+                  <div className="bg-slate-900/50 rounded-xl p-4 mb-4">
+                    <p className="text-white leading-relaxed">{roleQuestions[currentQ]}</p>
+                  </div>
+                  <button onClick={replayQuestion} disabled={isSpeaking} className="flex items-center gap-2 text-slate-400 hover:text-indigo-400 text-sm transition mx-auto disabled:opacity-50">
+                    <Volume2 /> Replay question
+                  </button>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-white font-medium">Your Answer</p>
+                    <button onClick={toggleRecording} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}>
+                      {isRecording ? <><MicOff /> Stop</> : <><Mic /> Speak</>}
+                    </button>
+                  </div>
+                  {micError && (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-3">
+                      <p className="text-red-400 text-sm">{micError}</p>
+                    </div>
+                  )}
+                  {isRecording && transcript && (
+                    <p className="text-indigo-400 text-sm mb-2 italic">"{transcript}"</p>
+                  )}
+                  <textarea
+                    value={currentAnswer}
+                    onChange={(e) => setCurrentAnswer(e.target.value)}
+                    placeholder="Speak or type your answer..."
+                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
+                    rows={4}
+                  />
+                  <button onClick={submitAnswer} disabled={!currentAnswer.trim() || isSpeaking} className="mt-4 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-medium py-3 rounded-xl transition">
+                    {currentQ === roleQuestions.length - 1 ? 'Finish Interview' : 'Submit Answer'} <ArrowRight />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {view === 'feedback' && (
+              <div className="space-y-4">
+                <div className="bg-gradient-to-br from-indigo-600/20 to-purple-600/20 rounded-2xl border border-indigo-500/30 p-6 text-center">
+                  <Award className="w-12 h-12 text-indigo-400 mx-auto mb-3" />
+                  <h2 className="text-xl font-bold text-white mb-1">Interview Complete! 🎉</h2>
+                  <p className="text-4xl font-bold text-white mt-3">{score.toFixed(1)}<span className="text-xl text-slate-400">/10</span></p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-400" />
+                      <span className="text-white font-medium text-sm">Strengths</span>
+                    </div>
+                    <ul className="text-slate-300 text-xs space-y-1">
+                      <li>• Clear communication</li>
+                      <li>• Good examples</li>
+                      <li>• Confident delivery</li>
+                    </ul>
+                  </div>
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <XCircle className="w-4 h-4 text-amber-400" />
+                      <span className="text-white font-medium text-sm">Improve</span>
+                    </div>
+                    <ul className="text-slate-300 text-xs space-y-1">
+                      <li>• Add more metrics</li>
+                      <li>• Use STAR method</li>
+                      <li>• Expand on impact</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <button onClick={() => { setView('setup'); setSelectedCategory(null); setSelectedRole(''); }} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition">
+                  <Plus className="inline mr-2" /> Practice Again
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<VoiceAIInterview />, document.getElementById('root'));
+  </script>
+</body>
+</html>
